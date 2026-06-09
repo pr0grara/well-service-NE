@@ -1,0 +1,69 @@
+---
+/**
+ * Reviews.astro — testimonials from an internal array.
+ * Replace these with real, verifiable reviews before launch (keep them honest —
+ * fake review counts/awards are a "scammy" signal per SPEC §2).
+ */
+import { SITE } from '@config/site';
+
+interface Review {
+  quote: string;
+  name: string;
+  town: string;
+}
+
+const REVIEWS: Review[] = [
+  {
+    quote:
+      'Woke up to no water before work. They diagnosed a waterlogged pressure tank over the phone, came out that morning, and we had water back by lunch. Honest about what it would cost up front.',
+    name: 'Dave R.',
+    town: 'Augusta, ME',
+  },
+  {
+    quote:
+      'Our well water tested high for arsenic. They explained the results in plain English and put in a treatment system sized to our numbers — retested after and it came down where it should be.',
+    name: 'Karen M.',
+    town: 'Brunswick, ME',
+  },
+  {
+    quote:
+      'Pump quit during that February cold snap. Turned out to be a frozen line, not the pump like another guy told us. Thawed it, fixed the spot that froze, and saved us a pump we didn’t need.',
+    name: 'Tom & Lisa P.',
+    town: 'Rockland, ME',
+  },
+];
+---
+
+<section class="section">
+  <div class="container">
+    <div class="section-head center">
+      <h2>What Local Homeowners Say</h2>
+      <p class="lead muted">
+        Rated {SITE.ratingValue} from {SITE.reviewCount} reviews across {SITE.region}.
+      </p>
+    </div>
+    <div class="testimonials">
+      {
+        REVIEWS.map((r) => (
+          <blockquote class="card testimonial">
+            <div class="stars" aria-label="5 out of 5 stars">★★★★★</div>
+            <p>“{r.quote}”</p>
+            <div class="who">
+              {r.name}
+              <small>{r.town}</small>
+            </div>
+          </blockquote>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .testimonial {
+    margin: 0;
+  }
+  .testimonial p {
+    font-size: 1.02rem;
+  }
+</style>

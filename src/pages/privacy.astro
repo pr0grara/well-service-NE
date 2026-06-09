@@ -1,0 +1,59 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { SITE } from '@config/site';
+
+const title = `Privacy Policy | ${SITE.company}`;
+const description = `Privacy policy for ${SITE.company}.`;
+---
+
+<BaseLayout title={title} description={description} noindex={true}>
+  <section class="section">
+    <div class="container prose">
+      <h1>Privacy Policy</h1>
+      <p class="muted">Last updated: {new Date().getFullYear()}</p>
+
+      <p>
+        {SITE.company} (“we,” “us”) operates this website to provide information about our
+        {' '}{SITE.trade} services in {SITE.region} and to let homeowners request a quote. This page
+        explains what we collect and how we use it.
+      </p>
+
+      <h2>Information we collect</h2>
+      <p>
+        When you submit our quote form, we collect the information you provide — typically your name,
+        phone number, email address, and a description of your well issue. We use this only to
+        respond to your request and provide service. We do not sell your information.
+      </p>
+
+      <h2>How we use it</h2>
+      <ul>
+        <li>To contact you about your request and schedule service.</li>
+        <li>To provide quotes and follow up about work we’ve discussed.</li>
+        <li>To keep basic records of jobs and communications.</li>
+      </ul>
+
+      <h2>Form processing</h2>
+      <p>
+        Quote-form submissions may be handled by a third-party form provider on our behalf. That
+        provider processes the message solely to deliver it to us.
+      </p>
+
+      <h2>Cookies &amp; analytics</h2>
+      <p>
+        This is a static website. We do not set advertising cookies. If we add basic analytics, it
+        is used only to understand aggregate traffic, not to identify you personally.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        Questions about this policy? Email <a href={`mailto:${SITE.email}`}>{SITE.email}</a> or call
+        {' '}{SITE.phoneDisplay}.
+      </p>
+
+      <p class="muted">
+        This template policy is provided for convenience and is not legal advice. Review it with a
+        professional before relying on it.
+      </p>
+    </div>
+  </section>
+</BaseLayout>

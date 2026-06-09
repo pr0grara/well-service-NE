@@ -1,0 +1,57 @@
+---
+/**
+ * NearbyCities.astro — internal-linking cards to nearby towns.
+ * Links to the combo page when `service` is given, else the city hub.
+ */
+import type { City } from '@config/cities';
+import type { Service } from '@config/services';
+import { cityUrl, cityServiceUrl } from '../lib/urls';
+
+interface Props {
+  cities: City[];
+  service?: Service;
+  cityName: string;
+}
+const { cities, service, cityName } = Astro.props;
+---
+
+{
+  cities.length > 0 && (
+    <section class="section">
+      <div class="container">
+        <div class="section-head">
+          <h2>Also Serving Near {cityName}</h2>
+        </div>
+        <div class="svc-grid">
+          {cities.map((c) => (
+            <a class="card nearby" href={service ? cityServiceUrl(service, c) : cityUrl(c)}>
+              <h3>{service ? `${service.short} in ${c.name}` : c.name}{c.state ? `, ${c.state}` : ''}</h3>
+              <p class="muted">
+                {service
+                  ? `${service.short.toLowerCase()} and full well service in ${c.name}.`
+                  : `Well & pump repair and water treatment in ${c.name}.`}
+              </p>
+              <span class="svc-link">View {c.name} →</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .nearby {
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.12s ease, border-color 0.12s ease;
+  }
+  .nearby:hover {
+    transform: translateY(-3px);
+    border-color: var(--green);
+  }
+  .nearby .svc-link {
+    color: var(--green-dark);
+    font-weight: 700;
+  }
+</style>

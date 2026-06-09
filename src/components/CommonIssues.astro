@@ -1,0 +1,33 @@
+---
+/**
+ * CommonIssues.astro — local issue cards for a city page.
+ */
+import type { CityIssue } from '@config/cities';
+
+interface Props {
+  cityName: string;
+  issues: CityIssue[];
+}
+const { cityName, issues } = Astro.props;
+---
+
+{
+  issues.length > 0 && (
+    <section class="section section-soft">
+      <div class="container">
+        <div class="section-head">
+          <h2>Common Well Problems in {cityName}</h2>
+          <p class="lead muted">The issues we see most on local wells — and how we fix them.</p>
+        </div>
+        <div class="issue-grid">
+          {issues.map((i) => (
+            <div class="card">
+              <h3>{i.title}</h3>
+              <p class="muted">{i.body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}

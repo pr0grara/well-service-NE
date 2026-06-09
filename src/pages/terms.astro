@@ -1,0 +1,57 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { SITE } from '@config/site';
+
+const title = `Terms of Service | ${SITE.company}`;
+const description = `Terms of service for ${SITE.company}.`;
+---
+
+<BaseLayout title={title} description={description} noindex={true}>
+  <section class="section">
+    <div class="container prose">
+      <h1>Terms of Service</h1>
+      <p class="muted">Last updated: {new Date().getFullYear()}</p>
+
+      <p>
+        These terms govern your use of the {SITE.company} website. By using this site you agree to
+        them.
+      </p>
+
+      <h2>Informational use</h2>
+      <p>
+        Content on this site describes our {SITE.trade} services in {SITE.region} for general
+        information. It is not a guarantee of specific results, pricing, or availability for your
+        property. Final scope and pricing are confirmed in writing before work begins.
+      </p>
+
+      <h2>Quotes &amp; estimates</h2>
+      <p>
+        Requesting a quote does not create a contract for service. Any estimate provided is based on
+        the information available and may change after on-site inspection of your well system.
+      </p>
+
+      <h2>No warranty for the website</h2>
+      <p>
+        This site is provided “as is.” We work to keep it accurate but make no warranty that it is
+        error-free or continuously available.
+      </p>
+
+      <h2>Limitation of liability</h2>
+      <p>
+        To the extent permitted by law, {SITE.company} is not liable for indirect or incidental
+        damages arising from use of this website. Service work is governed by the separate agreement
+        for that work.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        Questions? Email <a href={`mailto:${SITE.email}`}>{SITE.email}</a> or call {SITE.phoneDisplay}.
+      </p>
+
+      <p class="muted">
+        This template is provided for convenience and is not legal advice. Review it with a
+        professional before relying on it.
+      </p>
+    </div>
+  </section>
+</BaseLayout>

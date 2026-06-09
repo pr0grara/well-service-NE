@@ -1,0 +1,141 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import QuoteForm from '@components/QuoteForm.astro';
+import FaqSection from '@components/FaqSection.astro';
+import Neighborhoods from '@components/Neighborhoods.astro';
+import CommonIssues from '@components/CommonIssues.astro';
+import NearbyCities from '@components/NearbyCities.astro';
+import FinalCta from '@components/FinalCta.astro';
+import { MATRIX_SERVICES, type Service } from '@config/services';
+import { CITIES, nearbyCities, type City } from '@config/cities';
+import { SITE, tel } from '@config/site';
+import { getHeroUrl } from '../../lib/images';
+import { serviceUrl, cityServiceUrl, cityUrl } from '../../lib/urls';
+import { breadcrumb, serviceSchema, faqPage } from '../../lib/schema';
+
+export function getStaticPaths() {
+  const paths = [];
+  for (const service of MATRIX_SERVICES)
+    for (const city of CITIES)
+      paths.push({ params: { service: service.slug, city: city.slug }, props: { service, city } });
+  return paths;
+}
+
+interface Props {
+  service: Service;
+  city: City;
+}
+const { service, city } = Astro.props;
+
+const photo = city.serviceImages?.[service.slug] ?? service.image;
+const heroUrl = await getHeroUrl(city.heroImage ?? service.image);
+const where = city.state ? `${city.name}, ${city.state}` : city.name;
+const near = nearbyCities(city);
+
+// City + service FAQs combined (dedupe by question).
+const combinedFaqs = [...city.faqs, ...service.faqs].filter(
+  (f, i, arr) => arr.findIndex((x) => x.q === f.q) === i
+);
+
+const title = `${service.name} in ${where} | ${SITE.company}`;
+const description = `${service.short} in ${city.name}, ${city.state ?? 'ME'}. ${service.blurb} Local, licensed ${SITE.trade} — call ${SITE.phoneDisplay} for an up-front price.`;
+
+const jsonLd = [
+  breadcrumb([
+    { name: 'Home', url: '/' },
+    { name: service.short, url: serviceUrl(service) },
+    { name: city.name, url: cityServiceUrl(service, city) },
+  ]),
+  serviceSchema({
+    name: `${service.name} in ${where}`,
+    description: service.description,
+    areaName: where,
+  }),
+];
+const faqLd = faqPage(combinedFaqs);
+if (faqLd) jsonLd.push(faqLd);
+---
+
+<BaseLayout title={title} description={description} heroPreload={heroUrl} jsonLd={jsonLd}>
+  <!-- Hero -->
+  <section class="hero-single" style={`background-image:url('${heroUrl}')`}>
+    <div class="container">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a><span>/</span>
+        <a href={serviceUrl(service)}>{service.short}</a><span>/</span>{city.name}
+      </nav>
+      {service.emergency && <span class="badge-em">Emergency Service</span>}
+      <h1>{service.name} in {where}</h1>
+      <p>{service.blurb}</p>
+      <div class="hero-actions">
+        <a class="btn btn-call btn-lg" href={tel()}>📞 Call {SITE.phoneDisplay}</a>
+        <a class="btn btn-outline btn-lg" href="#quote">Get a Free Quote</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Service + city intro -->
+  <section class="section">
+    <div class="container split">
+      <div class="prose">
+        <h2>{service.short} for {city.name} Homes</h2>
+        <p class="lead">{service.description}</p>
+
+        <Image
+          src={photo}
+          alt={`${service.name} in ${city.name}, ${city.state ?? 'ME'}`}
+          widths={[480, 760, 1000]}
+          sizes="(max-width: 920px) 100vw, 640px"
+          loading="lazy"
+          style="border-radius:12px;margin:8px 0 20px;"
+        />
+
+        <h3>Local well service in {city.name}</h3>
+        <p>{city.intro}</p>
+
+        <ul class="checklist">
+          {service.points.map((p) => <li>{p}</li>)}
+        </ul>
+
+        <p>
+          Need {service.short.toLowerCase()} elsewhere? See all of our
+          <a href={cityUrl(city)}> {city.name} well services</a> or
+          <a href={serviceUrl(service)}> {service.short.toLowerCase()} across {SITE.region}</a>.
+        </p>
+      </div>
+      <QuoteForm
+        source={`combo-${service.slug}-${city.slug}`}
+        heading={`${service.short} in ${city.name}`}
+        sub={`Tell us what’s happening and we’ll call you back — local ${city.name} service.`}
+      />
+    </div>
+  </section>
+
+  <Neighborhoods cityName={city.name} neighborhoods={city.neighborhoods} />
+
+  <CommonIssues cityName={city.name} issues={city.issues} />
+
+  <div class="section-soft">
+    <FaqSection faqs={combinedFaqs} title={`${service.short} in ${city.name} — FAQs`} />
+  </div>
+
+  <NearbyCities cities={near} service={service} cityName={city.name} />
+
+  <FinalCta heading={`Need ${service.short} in ${city.name}?`} />
+</BaseLayout>
+
+<style>
+  .badge-em {
+    display: inline-block;
+    background: var(--green);
+    color: #fff;
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+  }
+</style>

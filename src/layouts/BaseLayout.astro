@@ -1,0 +1,82 @@
+---
+/**
+ * BaseLayout.astro — owns <head>: title, meta description, canonical, OG tags,
+ * theme-color, favicons, optional hero preload (LCP), and JSON-LD injection.
+ * localBusiness schema is injected on EVERY page automatically.
+ */
+import '@fontsource-variable/inter';
+import '../styles/global.css';
+import Header from '@components/Header.astro';
+import Footer from '@components/Footer.astro';
+import { SITE } from '@config/site';
+import { localBusiness } from '../lib/schema';
+
+interface Props {
+  title: string;
+  description: string;
+  noindex?: boolean;
+  /** Extra JSON-LD (object or array); merged with the always-on localBusiness schema. */
+  jsonLd?: Record<string, unknown> | Array<Record<string, unknown>>;
+  /** Optimized hero URL to <link rel=preload> as the LCP image. */
+  heroPreload?: string;
+  ogType?: string;
+}
+
+const { title, description, noindex = false, jsonLd, heroPreload, ogType = 'website' } =
+  Astro.props;
+
+// Canonical + OG URL from the current path and the configured site.
+const siteBase = (Astro.site?.href ?? SITE.url).replace(/\/$/, '');
+const canonical = `${siteBase}${Astro.url.pathname.replace(/\/$/, '') || ''}` + '/';
+const canonicalClean = canonical.replace(/\/+$/, '/');
+
+// Assemble JSON-LD: localBusiness always, plus any page-supplied schema.
+const extra = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
+const schemas = [localBusiness(siteBase), ...extra].filter(Boolean);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalClean} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+    <meta name="theme-color" content="#232a23" />
+    <meta property="og:site_name" content={SITE.company} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={canonicalClean} />
+    <meta name="twitter:card" content="summary" />
+
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    {
+      heroPreload && (
+        <link rel="preload" as="image" href={heroPreload} fetchpriority="high" />
+      )
+    }
+
+    {
+      schemas.map((s) => (
+        <script
+          type="application/ld+json"
+          set:html={JSON.stringify(s)}
+        />
+      ))
+    }
+  </head>
+  <body>
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

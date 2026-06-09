@@ -1,0 +1,24 @@
+---
+/**
+ * Neighborhoods.astro — neighborhood chips for a city page.
+ */
+interface Props {
+  cityName: string;
+  neighborhoods: string[];
+}
+const { cityName, neighborhoods } = Astro.props;
+---
+
+{
+  neighborhoods.length > 0 && (
+    <section class="section-sm">
+      <div class="container">
+        <h2>Neighborhoods We Cover in {cityName}</h2>
+        <p class="muted">From in-town lots to rural drilled wells — if it’s in or around {cityName}, we service it.</p>
+        <ul class="chips">
+          {neighborhoods.map((n) => <li>{n}</li>)}
+        </ul>
+      </div>
+    </section>
+  )
+}

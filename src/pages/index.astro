@@ -1,0 +1,84 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import ServiceCards from '@components/ServiceCards.astro';
+import ServiceAreaMap from '@components/ServiceAreaMap.astro';
+import Reviews from '@components/Reviews.astro';
+import FinalCta from '@components/FinalCta.astro';
+import QuoteForm from '@components/QuoteForm.astro';
+import CityLinks from '@components/CityLinks.astro';
+import { SITE, tel } from '@config/site';
+import { getHeroUrl } from '../lib/images';
+
+const heroUrl = await getHeroUrl();
+
+const title = `${SITE.company} | Well & Pump Repair in ${SITE.region}`;
+const description = `Fast, honest well and pump repair in ${SITE.region}. Submersible & jet pumps, pressure tanks, water testing, and frozen-line thawing. Call ${SITE.phoneDisplay} for an up-front price.`;
+---
+
+<BaseLayout title={title} description={description} heroPreload={heroUrl}>
+  <!-- Hero -->
+  <section class="hero" style={`background-image:url('${heroUrl}')`}>
+    <div class="container">
+      <h1>Well &amp; Pump Repair You Can Count On in {SITE.region}</h1>
+      <p>
+        No water? Low pressure? Staining or a frozen line? We diagnose the real problem from the
+        faucet back to the well — and fix it with an up-front price. Licensed, insured, local.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-call btn-lg" href={tel()}>📞 Call {SITE.phoneDisplay}</a>
+        <a class="btn btn-outline btn-lg" href="#quote">Request a Free Quote</a>
+      </div>
+      <div class="trust-row">
+        <span><span class="dot"></span> Licensed &amp; insured</span>
+        <span><span class="dot"></span> Up-front pricing</span>
+        <span><span class="dot"></span> Priority no-water service</span>
+        <span><span class="dot"></span> Rated {SITE.ratingValue}/5 locally</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Intro + quote form -->
+  <section class="section">
+    <div class="container split">
+      <div class="prose">
+        <h2>The Local Well &amp; Pump Crew {SITE.region} Calls First</h2>
+        <p>
+          When your water quits or starts running weak, dirty, or short, you don’t need a sales
+          pitch — you need someone who knows how Maine wells actually behave. Most homes here run on
+          drilled bedrock wells with submersible pumps, and the problems follow a pattern: failing
+          pumps, waterlogged pressure tanks, low-yield wells, arsenic and iron in the water, and
+          winter freeze-ups.
+        </p>
+        <p>
+          {SITE.company} diagnoses before we quote, explains what we found in plain terms, and fixes
+          the actual cause so it holds. From routine pump replacement to an emergency frozen line at
+          5 a.m., we handle the whole system.
+        </p>
+        <ul class="checklist">
+          <li>Submersible &amp; jet pump repair and replacement</li>
+          <li>Pressure tank &amp; switch service to stop short-cycling</li>
+          <li>Arsenic, bacteria, iron &amp; hardness testing and treatment</li>
+          <li>Frozen-line thawing and freeze prevention</li>
+        </ul>
+      </div>
+      <QuoteForm source="home-hero" />
+    </div>
+  </section>
+
+  <!-- Services -->
+  <ServiceCards
+    sub="From a dead pump to a high arsenic test, here’s what we fix for Central Maine homeowners."
+  />
+
+  <!-- Service area -->
+  <ServiceAreaMap />
+
+  <!-- City links -->
+  <CityLinks sub={`Local, specific service for every town we cover across ${SITE.region}.`} />
+
+  <!-- Reviews -->
+  <Reviews />
+
+  <!-- Final CTA -->
+  <FinalCta />
+</BaseLayout>

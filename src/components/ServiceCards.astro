@@ -1,0 +1,76 @@
+---
+/**
+ * ServiceCards.astro — grid of service cards.
+ * - No `city`: shows ALL services, linking to service hubs.
+ * - With `city`: shows matrix services, linking to that city's combo pages,
+ *   using per-city service-photo overrides when present.
+ */
+import { Image } from 'astro:assets';
+import { SERVICES, MATRIX_SERVICES } from '@config/services';
+import type { City } from '@config/cities';
+import { serviceUrl, cityServiceUrl } from '../lib/urls';
+
+interface Props {
+  city?: City;
+  title?: string;
+  sub?: string;
+}
+const { city, title, sub } = Astro.props;
+
+const list = city ? MATRIX_SERVICES : SERVICES;
+const headTitle = title ?? (city ? `Well Repair Services in ${city.name}` : 'Our Well Repair Services');
+---
+
+<section class="section">
+  <div class="container">
+    {
+      (headTitle || sub) && (
+        <div class="section-head">
+          {headTitle && <h2>{headTitle}</h2>}
+          {sub && <p class="lead muted">{sub}</p>}
+        </div>
+      )
+    }
+    <div class="svc-grid">
+      {
+        list.map((s) => {
+          const href = city ? cityServiceUrl(s, city) : serviceUrl(s);
+          const img = (city?.serviceImages?.[s.slug]) ?? s.image;
+          return (
+            <a class="card svc-card" href={href}>
+              <Image
+                class="svc-img"
+                src={img}
+                alt={s.imageAlt}
+                widths={[320, 480, 640]}
+                sizes="(max-width: 600px) 100vw, (max-width: 920px) 50vw, 360px"
+                loading="lazy"
+              />
+              <div class="svc-body">
+                {s.emergency && <span class="badge">Emergency</span>}
+                <h3>{city ? `${s.short} in ${city.name}` : s.name}</h3>
+                <p class="muted">{s.blurb}</p>
+                <span class="svc-link">Learn more →</span>
+              </div>
+            </a>
+          );
+        })
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .svc-card {
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.12s ease, border-color 0.12s ease;
+  }
+  .svc-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--green);
+  }
+  .svc-card .svc-link {
+    color: var(--green-dark);
+  }
+</style>

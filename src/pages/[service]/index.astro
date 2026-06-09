@@ -1,0 +1,108 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import QuoteForm from '@components/QuoteForm.astro';
+import FaqSection from '@components/FaqSection.astro';
+import CityLinks from '@components/CityLinks.astro';
+import FinalCta from '@components/FinalCta.astro';
+import { SERVICES, type Service } from '@config/services';
+import { SITE, tel } from '@config/site';
+import { getHeroUrl } from '../../lib/images';
+import { serviceUrl } from '../../lib/urls';
+import { breadcrumb, serviceSchema, faqPage } from '../../lib/schema';
+
+export function getStaticPaths() {
+  return SERVICES.map((s) => ({ params: { service: s.slug }, props: { service: s } }));
+}
+
+interface Props {
+  service: Service;
+}
+const { service } = Astro.props;
+
+const heroUrl = await getHeroUrl(service.image);
+
+const title = `${service.name} in ${SITE.region} | ${SITE.company}`;
+const description = `${service.blurb} ${SITE.company} — licensed ${SITE.trade} across ${SITE.region}. Call ${SITE.phoneDisplay}.`;
+
+const jsonLd = [
+  breadcrumb([
+    { name: 'Home', url: '/' },
+    { name: service.short, url: serviceUrl(service) },
+  ]),
+  serviceSchema({ name: service.name, description: service.description, areaName: SITE.region }),
+];
+const faqLd = faqPage(service.faqs);
+if (faqLd) jsonLd.push(faqLd);
+---
+
+<BaseLayout title={title} description={description} heroPreload={heroUrl} jsonLd={jsonLd}>
+  <!-- Hero -->
+  <section class="hero-single" style={`background-image:url('${heroUrl}')`}>
+    <div class="container">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a><span>/</span>{service.short}
+      </nav>
+      {service.emergency && <span class="badge-em">Emergency Service</span>}
+      <h1>{service.name} in {SITE.region}</h1>
+      <p>{service.blurb}</p>
+      <div class="hero-actions">
+        <a class="btn btn-call btn-lg" href={tel()}>📞 Call {SITE.phoneDisplay}</a>
+        <a class="btn btn-outline btn-lg" href="#quote">Get a Free Quote</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Description + form -->
+  <section class="section">
+    <div class="container split">
+      <div class="prose">
+        <h2>{service.name}</h2>
+        <p class="lead">{service.description}</p>
+
+        {service.sections.map((sec) => (
+          <>
+            <h3>{sec.h}</h3>
+            <p>{sec.body}</p>
+          </>
+        ))}
+
+        <h3>What’s included</h3>
+        <ul class="checklist">
+          {service.points.map((p) => <li>{p}</li>)}
+        </ul>
+      </div>
+      <QuoteForm source={`service-${service.slug}`} heading={`Get Help With ${service.short}`} />
+    </div>
+  </section>
+
+  <!-- FAQs -->
+  <div class="section-soft">
+    <FaqSection faqs={service.faqs} title={`${service.short} — Questions We Hear a Lot`} />
+  </div>
+
+  <!-- Where: city hubs for the catch-all, combo pages for matrix services -->
+  {
+    service.hubOnly ? (
+      <CityLinks title={`${service.short} Across ${SITE.region}`} sub="Pick your town for local well service details." />
+    ) : (
+      <CityLinks service={service} title={`${service.short} by Town`} sub={`Local ${service.short.toLowerCase()} pages for every community we serve.`} />
+    )
+  }
+
+  <FinalCta heading={`Need ${service.short} in ${SITE.region}?`} />
+</BaseLayout>
+
+<style>
+  .badge-em {
+    display: inline-block;
+    background: var(--green);
+    color: #fff;
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+  }
+</style>

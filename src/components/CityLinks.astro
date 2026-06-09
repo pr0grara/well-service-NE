@@ -1,0 +1,44 @@
+---
+/**
+ * CityLinks.astro — full city list.
+ * - No `service`: links to city hubs (/service-area/{city}/).
+ * - With `service`: links to that service's combo page in each city.
+ * `exclude` drops one city slug (e.g. the current city).
+ */
+import { CITIES } from '@config/cities';
+import type { Service } from '@config/services';
+import { cityUrl, cityServiceUrl } from '../lib/urls';
+
+interface Props {
+  service?: Service;
+  exclude?: string;
+  title?: string;
+  sub?: string;
+}
+const { service, exclude, title, sub } = Astro.props;
+
+const list = CITIES.filter((c) => c.slug !== exclude);
+const headTitle =
+  title ?? (service ? `${service.short} by Town` : 'Towns We Serve');
+---
+
+<section class="section section-soft">
+  <div class="container">
+    <div class="section-head">
+      <h2>{headTitle}</h2>
+      {sub && <p class="lead muted">{sub}</p>}
+    </div>
+    <ul class="cities">
+      {
+        list.map((c) => (
+          <li>
+            <a href={service ? cityServiceUrl(service, c) : cityUrl(c)}>
+              {service ? `${service.short} in ${c.name}` : c.name}
+              <small>{c.state ? c.state : ''}</small>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

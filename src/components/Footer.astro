@@ -1,0 +1,124 @@
+---
+/**
+ * Footer.astro — service links, first 8 city links, legal, phone. Reads config.
+ */
+import { SITE, tel } from '@config/site';
+import { SERVICES } from '@config/services';
+import { CITIES } from '@config/cities';
+import { serviceUrl, cityUrl } from '../lib/urls';
+
+const year = new Date().getFullYear();
+const footerCities = CITIES.slice(0, 8);
+---
+
+<footer class="site-footer">
+  <div class="container foot-grid">
+    <div class="foot-brand">
+      <strong>{SITE.company}</strong>
+      <p class="muted">{SITE.tagline} serving {SITE.region}.</p>
+      <a class="btn btn-call" href={tel()}>📞 {SITE.phoneDisplay}</a>
+      <p class="muted email"><a href={`mailto:${SITE.email}`}>{SITE.email}</a></p>
+    </div>
+
+    <div class="foot-col">
+      <h4>Services</h4>
+      <ul>
+        {SERVICES.map((s) => (
+          <li><a href={serviceUrl(s)}>{s.short}</a></li>
+        ))}
+      </ul>
+    </div>
+
+    <div class="foot-col">
+      <h4>Service Area</h4>
+      <ul>
+        {footerCities.map((c) => (
+          <li><a href={cityUrl(c)}>{c.name}{c.state ? `, ${c.state}` : ''}</a></li>
+        ))}
+      </ul>
+    </div>
+
+    <div class="foot-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/service-area/augusta/">Service Area</a></li>
+        <li><a href="/privacy/">Privacy Policy</a></li>
+        <li><a href="/terms/">Terms of Service</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="container foot-bottom">
+    <p class="muted">
+      © {year} {SITE.company}. Licensed &amp; insured well and pump contractor serving {SITE.region}.
+    </p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--navy);
+    color: rgba(239, 233, 220, 0.82);
+    padding: 56px 0 28px;
+    margin-top: 0;
+  }
+  .foot-grid {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr 1fr 1fr;
+    gap: 36px;
+  }
+  .site-footer h4 {
+    color: #efe9dc;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 14px;
+  }
+  .foot-brand strong {
+    color: #efe9dc;
+    font-size: 1.15rem;
+    display: block;
+    margin-bottom: 4px;
+  }
+  .foot-brand .btn {
+    margin-top: 10px;
+  }
+  .foot-brand .email {
+    margin-top: 12px;
+  }
+  .site-footer ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 8px;
+  }
+  .site-footer a {
+    color: rgba(239, 233, 220, 0.82);
+    text-decoration: none;
+  }
+  .site-footer a:hover {
+    color: #efe9dc;
+  }
+  .foot-bottom {
+    margin-top: 40px;
+    padding-top: 22px;
+    border-top: 1px solid rgba(239, 233, 220, 0.15);
+  }
+  .foot-bottom .muted {
+    color: rgba(239, 233, 220, 0.6);
+    margin: 0;
+  }
+  @media (max-width: 920px) {
+    .foot-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (max-width: 600px) {
+    .foot-grid {
+      grid-template-columns: 1fr;
+      gap: 28px;
+    }
+  }
+</style>

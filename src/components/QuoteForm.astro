@@ -1,0 +1,152 @@
+---
+/**
+ * QuoteForm.astro — primary lead-capture form.
+ * Backend is chosen in site.ts:
+ *   - Web3Forms: formEndpoint = api.web3forms.com/submit + formAccessKey
+ *   - Formspree:  formEndpoint = formspree.io/f/xxxx (no key)
+ *   - Worker/custom: any endpoint accepting multipart/form-data POST → 2xx
+ *   - Call-only:  formEndpoint = "" → submit disabled, shows "call us instead"
+ */
+import { SITE, tel } from '@config/site';
+
+interface Props {
+  source?: string;
+  heading?: string;
+  sub?: string;
+}
+const {
+  source = 'website',
+  heading = 'Request a Free Quote',
+  sub = 'Tell us what your well is doing and we’ll call you back — usually same day.',
+} = Astro.props;
+
+const callOnly = SITE.formEndpoint === '';
+const subject = `New lead — ${SITE.company} (${source})`;
+---
+
+<div class="card quote-form" id="quote">
+  <h3>{heading}</h3>
+  <p class="muted">{sub}</p>
+
+  {
+    callOnly ? (
+      <p class="callout">
+        Our quote form isn’t connected yet — the fastest way to reach us is by phone.
+      </p>
+    ) : null
+  }
+
+  <form id="lead-form" novalidate>
+    {SITE.formAccessKey ? <input type="hidden" name="access_key" value={SITE.formAccessKey} /> : null}
+    <input type="hidden" name="source" value={source} />
+    <input type="hidden" name="subject" value={subject} />
+    <input type="hidden" name="from_name" value={SITE.company} />
+
+    <!-- honeypot: real people leave this empty -->
+    <div class="hp" aria-hidden="true">
+      <label>Company Website<input type="text" name="company_website" tabindex="-1" autocomplete="off" /></label>
+    </div>
+
+    <div class="field">
+      <label for="lf-name">Name <span class="req">*</span></label>
+      <input id="lf-name" name="name" type="text" autocomplete="name" required />
+    </div>
+    <div class="field">
+      <label for="lf-phone">Phone</label>
+      <input id="lf-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" />
+    </div>
+    <div class="field">
+      <label for="lf-email">Email <span class="req">*</span></label>
+      <input id="lf-email" name="email" type="email" autocomplete="email" required />
+    </div>
+    <div class="field">
+      <label for="lf-message">What’s going on with your well?</label>
+      <textarea id="lf-message" name="message" rows="4" placeholder="No water, low pressure, staining, frozen line…"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-lg btn-block" id="lf-submit" disabled={callOnly}>
+      {callOnly ? 'Call us instead' : 'Send My Request'}
+    </button>
+    <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
+
+    <p class="muted or-call">
+      Prefer to talk now? Call <a href={tel()}>{SITE.phoneDisplay}</a>.
+    </p>
+  </form>
+</div>
+
+<style>
+  .quote-form h3 {
+    margin-bottom: 4px;
+  }
+  .callout {
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    color: #9a3412;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-weight: 600;
+  }
+  .or-call {
+    margin: 14px 0 0;
+    text-align: center;
+  }
+</style>
+
+<script define:vars={{ endpoint: SITE.formEndpoint, phoneDisplay: SITE.phoneDisplay, tel: tel() }}>
+  const form = document.getElementById('lead-form');
+  if (form && endpoint) {
+    const statusEl = document.getElementById('form-status');
+    const submitBtn = document.getElementById('lf-submit');
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    const setStatus = (msg, kind) => {
+      statusEl.textContent = msg;
+      statusEl.className = 'form-status' + (kind ? ' ' + kind : '');
+    };
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // honeypot — bots fill this; bail silently as if successful
+      if (form.company_website && form.company_website.value.trim() !== '') {
+        setStatus('Thanks — we’ll be in touch shortly.', 'ok');
+        form.reset();
+        return;
+      }
+
+      const name = form.name.value.trim();
+      const email = form.email.value.trim();
+      if (!name) {
+        setStatus('Please enter your name.', 'err');
+        form.name.focus();
+        return;
+      }
+      if (!emailRe.test(email)) {
+        setStatus('Please enter a valid email address.', 'err');
+        form.email.focus();
+        return;
+      }
+
+      submitBtn.disabled = true;
+      const originalLabel = submitBtn.textContent;
+      submitBtn.textContent = 'Sending…';
+      setStatus('', null);
+
+      try {
+        const res = await fetch(endpoint, { method: 'POST', body: new FormData(form) });
+        if (res.ok) {
+          setStatus('Thanks — we got your request and will call you back shortly.', 'ok');
+          form.reset();
+        } else {
+          setStatus(`Something went wrong. Please call us at ${phoneDisplay}.`, 'err');
+        }
+      } catch (err) {
+        setStatus(`Couldn’t send right now. Please call us at ${phoneDisplay}.`, 'err');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalLabel;
+      }
+    });
+  }
+</script>

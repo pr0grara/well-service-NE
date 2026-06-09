@@ -1,0 +1,101 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import ServiceCards from '@components/ServiceCards.astro';
+import QuoteForm from '@components/QuoteForm.astro';
+import FaqSection from '@components/FaqSection.astro';
+import Neighborhoods from '@components/Neighborhoods.astro';
+import CommonIssues from '@components/CommonIssues.astro';
+import NearbyCities from '@components/NearbyCities.astro';
+import FinalCta from '@components/FinalCta.astro';
+import { CITIES, nearbyCities, type City } from '@config/cities';
+import { SITE, tel } from '@config/site';
+import { getHeroUrl } from '../../lib/images';
+import { cityUrl } from '../../lib/urls';
+import { breadcrumb, faqPage } from '../../lib/schema';
+
+export function getStaticPaths() {
+  return CITIES.map((c) => ({ params: { city: c.slug }, props: { city: c } }));
+}
+
+interface Props {
+  city: City;
+}
+const { city } = Astro.props;
+
+const heroUrl = await getHeroUrl(city.heroImage);
+const where = city.state ? `${city.name}, ${city.state}` : city.name;
+const near = nearbyCities(city);
+
+const title = `Well Repair in ${where} | ${SITE.company}`;
+const description = `Well & pump repair, pressure tanks, water testing and frozen-line service in ${where}. Local, licensed ${SITE.trade} — call ${SITE.phoneDisplay}.`;
+
+const jsonLd = [
+  breadcrumb([
+    { name: 'Home', url: '/' },
+    { name: where, url: cityUrl(city) },
+  ]),
+];
+const faqLd = faqPage(city.faqs);
+if (faqLd) jsonLd.push(faqLd);
+---
+
+<BaseLayout title={title} description={description} heroPreload={heroUrl} jsonLd={jsonLd}>
+  <!-- Hero -->
+  <section class="hero-single" style={`background-image:url('${heroUrl}')`}>
+    <div class="container">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a><span>/</span>Service Area<span>/</span>{city.name}
+      </nav>
+      <h1>Well &amp; Pump Repair in {where}</h1>
+      <p>
+        Local, licensed well service for {city.name} — pumps, pressure tanks, water testing, and
+        winter freeze-ups. Up-front pricing and priority no-water response.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-call btn-lg" href={tel()}>📞 Call {SITE.phoneDisplay}</a>
+        <a class="btn btn-outline btn-lg" href="#quote">Get a Free Quote</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- City intro + form -->
+  <section class="section">
+    <div class="container split">
+      <div class="prose">
+        <h2>Your {city.name} Well &amp; Pump Specialists</h2>
+        <p class="lead">{city.intro}</p>
+
+        {
+          city.landmarks.length > 0 && (
+            <>
+              <h3>Around {city.name}</h3>
+              <ul class="chips">
+                {city.landmarks.map((l) => <li>{l}</li>)}
+              </ul>
+            </>
+          )
+        }
+      </div>
+      <QuoteForm
+        source={`city-${city.slug}`}
+        heading={`Well Service in ${city.name}`}
+        sub={`Tell us what your well is doing — we’ll call you back with a real answer.`}
+      />
+    </div>
+  </section>
+
+  <!-- All matrix services, linking to combo pages for this city -->
+  <ServiceCards city={city} />
+
+  <Neighborhoods cityName={city.name} neighborhoods={city.neighborhoods} />
+
+  <CommonIssues cityName={city.name} issues={city.issues} />
+
+  <NearbyCities cities={near} cityName={city.name} />
+
+  <div class="section-soft">
+    <FaqSection faqs={city.faqs} title={`Well Repair in ${city.name} — FAQs`} />
+  </div>
+
+  <FinalCta heading={`Well Trouble in ${city.name}?`} />
+</BaseLayout>
