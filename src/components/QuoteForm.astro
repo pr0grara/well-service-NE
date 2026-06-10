@@ -77,12 +77,13 @@ const subject = `New lead — ${SITE.company} (${source})`;
 </style>
 
 <script>
-  const form = document.getElementById('lead-form');
-  if (form) {
-    const statusEl = document.getElementById('form-status');
+  const form = document.getElementById('lead-form') as HTMLFormElement | null;
+  const statusEl = document.getElementById('form-status');
+  if (form && statusEl) {
     const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const field = (name: string) => form.elements.namedItem(name) as HTMLInputElement | null;
 
-    const setStatus = (msg, kind) => {
+    const setStatus = (msg: string, kind?: 'ok' | 'err') => {
       statusEl.textContent = msg;
       statusEl.className = 'form-status' + (kind ? ' ' + kind : '');
     };
@@ -91,22 +92,23 @@ const subject = `New lead — ${SITE.company} (${source})`;
       e.preventDefault();
 
       // honeypot — bots fill this; bail silently as if successful
-      if (form.company_website && form.company_website.value.trim() !== '') {
+      const hp = field('company_website');
+      if (hp && hp.value.trim() !== '') {
         setStatus('Thanks — we’ll be in touch shortly.', 'ok');
         form.reset();
         return;
       }
 
-      const name = form.name.value.trim();
-      const email = form.email.value.trim();
-      if (!name) {
+      const nameEl = field('name');
+      const emailEl = field('email');
+      if (!nameEl || !nameEl.value.trim()) {
         setStatus('Please enter your name.', 'err');
-        form.name.focus();
+        nameEl?.focus();
         return;
       }
-      if (!emailRe.test(email)) {
+      if (!emailEl || !emailRe.test(emailEl.value.trim())) {
         setStatus('Please enter a valid email address.', 'err');
-        form.email.focus();
+        emailEl?.focus();
         return;
       }
 

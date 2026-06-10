@@ -29,6 +29,9 @@ const siteBase = (Astro.site?.href ?? SITE.url).replace(/\/$/, '');
 const canonical = `${siteBase}${Astro.url.pathname.replace(/\/$/, '') || ''}` + '/';
 const canonicalClean = canonical.replace(/\/+$/, '/');
 
+// Default social share image (1200x630, served from public/). Absolute URL for crawlers.
+const ogImage = `${siteBase}/og.jpg`;
+
 // Assemble JSON-LD: localBusiness always, plus any page-supplied schema.
 const extra = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 const schemas = [localBusiness(siteBase), ...extra].filter(Boolean);
@@ -50,7 +53,14 @@ const schemas = [localBusiness(siteBase), ...extra].filter(Boolean);
     <meta property="og:description" content={description} />
     <meta property="og:type" content={ogType} />
     <meta property="og:url" content={canonicalClean} />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={SITE.company} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
 
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -66,6 +76,7 @@ const schemas = [localBusiness(siteBase), ...extra].filter(Boolean);
     {
       schemas.map((s) => (
         <script
+          is:inline
           type="application/ld+json"
           set:html={JSON.stringify(s)}
         />

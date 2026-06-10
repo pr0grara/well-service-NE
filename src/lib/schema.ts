@@ -18,6 +18,8 @@ export function localBusiness(siteUrl: string = SITE.url): Record<string, unknow
     name: SITE.company,
     description: `${SITE.company} — ${SITE.tagline} in ${SITE.region}.`,
     url: `${root}/`,
+    image: `${root}/og.jpg`,
+    logo: `${root}/favicon.svg`,
     telephone: SITE.phone,
     email: SITE.email,
     priceRange: SITE.priceRange,

@@ -36,9 +36,9 @@ export const SITE: SiteConfig = {
   trade: 'well repair',
   phone: '+12075550100', // PLACEHOLDER — replace with real dialable number
   phoneDisplay: '(207) 555-0100', // PLACEHOLDER
-  email: 'service@pinestatewellpump.com', // PLACEHOLDER
+  email: 'service@pinestatewellandpump.com', // PLACEHOLDER local-part — confirm the real inbox
   region: 'Central Maine',
-  url: 'https://pinestatewellpump.com', // PLACEHOLDER — keep in sync with astro.config.mjs
+  url: 'https://pinestatewellandpump.com', // real domain — keep in sync with astro.config.mjs
   // Call-only for now: empty endpoint disables form submission and shows "call us instead".
   // To go live with a Cloudflare Worker later, set formEndpoint to the Worker URL
   // (it must accept a multipart/form-data POST and return 2xx). Leave formAccessKey "".

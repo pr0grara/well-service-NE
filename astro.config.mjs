@@ -3,7 +3,7 @@ import sitemap from '@astrojs/sitemap';
 
 // SITE_URL overrides the production domain at build/deploy time (the only env var read).
 export default defineConfig({
-  site: process.env.SITE_URL || 'https://pinestatewellpump.com',
+  site: process.env.SITE_URL || 'https://pinestatewellandpump.com',
   trailingSlash: 'ignore',
   build: { inlineStylesheets: 'always' }, // inline CSS → no render-blocking request
   integrations: [
