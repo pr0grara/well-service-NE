@@ -5,12 +5,13 @@
 import { SITE, tel } from '@config/site';
 import { SERVICES } from '@config/services';
 import { serviceUrl } from '../lib/urls';
+import BrandMark from '@components/BrandMark.astro';
 ---
 
 <header class="site-header">
   <div class="container bar">
     <a href="/" class="brand" aria-label={`${SITE.company} home`}>
-      <span class="brand-mark" aria-hidden="true"></span>
+      <BrandMark size={34} />
       <span class="brand-text">
         <strong>{SITE.company}</strong>
         <small>{SITE.tagline}</small>
@@ -50,10 +51,8 @@ import { serviceUrl } from '../lib/urls';
     color: var(--navy);
   }
   .brand-mark {
-    width: 26px;
-    height: 26px;
-    background: var(--green);
     flex: none;
+    display: block;
   }
   .brand-text strong {
     display: block;
