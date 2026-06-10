@@ -44,14 +44,12 @@ const { cities, service, cityName } = Astro.props;
   .nearby {
     text-decoration: none;
     color: inherit;
-    transition: transform 0.12s ease, border-color 0.12s ease;
   }
   .nearby:hover {
-    transform: translateY(-3px);
-    border-color: var(--green);
+    border-color: #999;
   }
   .nearby .svc-link {
     color: var(--green-dark);
-    font-weight: 700;
+    font-weight: bold;
   }
 </style>
