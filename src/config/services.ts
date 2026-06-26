@@ -40,9 +40,14 @@ export interface Service {
 export const SERVICES: Service[] = [
   {
     slug: 'well-repair',
-    name: 'Well & Pump Repair',
+    // EXP-002 (see analytics/analysis/ONPAGE-EXPERIMENTS.md): renamed from "Well & Pump Repair"
+    // to "Well Repair & Service" to stop this broad hub from competing head-to-head with the
+    // dedicated /well-pump-repair/ page on the query "well pump repair" (keyword cannibalization).
+    // The name drives the <title>, <h1>, and breadcrumb, so this hands the exact term to the
+    // dedicated page. Slug kept stable (it is a join key).
+    name: 'Well Repair & Service',
     short: 'Well Repair',
-    blurb: 'Full-service well and pump repair for drilled and dug wells across Central Maine.',
+    blurb: 'Whole-system well repair and service for drilled and dug wells across Central Maine.',
     description:
       'When the water stops — or starts running dirty, weak, or short — we track the problem from the faucet back to the well and fix the actual cause, not just the symptom. Pine State Well & Pump services submersible and jet pumps, pressure tanks, switches, wiring, pitless adapters, and the controls in between. Most Central Maine homes run on drilled bedrock wells, and we know how they behave: low-yield wells that pump down, iron and sediment that chew up impellers, and pressure problems that get blamed on the pump when the tank is the real issue. We diagnose before we quote, and we explain what we found in plain terms.',
     sections: [
