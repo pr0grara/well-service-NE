@@ -27,7 +27,7 @@ const subject = `New lead — ${SITE.company} (${source})`;
   <h3>{heading}</h3>
   <p class="muted">{sub}</p>
 
-  <form id="lead-form" novalidate>
+  <form id="lead-form" novalidate data-endpoint={SITE.formEndpoint}>
     {SITE.formAccessKey ? <input type="hidden" name="access_key" value={SITE.formAccessKey} /> : null}
     <input type="hidden" name="source" value={source} />
     <input type="hidden" name="subject" value={subject} />
@@ -79,42 +79,48 @@ const subject = `New lead — ${SITE.company} (${source})`;
 <script>
   const form = document.getElementById('lead-form') as HTMLFormElement | null;
   const statusEl = document.getElementById('form-status');
-  if (form && statusEl) {
-    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const field = (name: string) => form.elements.namedItem(name) as HTMLInputElement | null;
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    const setStatus = (msg: string, kind?: 'ok' | 'err') => {
-      statusEl.textContent = msg;
-      statusEl.className = 'form-status' + (kind ? ' ' + kind : '');
-    };
-
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-
-      // honeypot — bots fill this; bail silently as if successful
-      const hp = field('company_website');
-      if (hp && hp.value.trim() !== '') {
-        setStatus('Thanks — we’ll be in touch shortly.', 'ok');
-        form.reset();
-        return;
-      }
-
-      const nameEl = field('name');
-      const emailEl = field('email');
-      if (!nameEl || !nameEl.value.trim()) {
-        setStatus('Please enter your name.', 'err');
-        nameEl?.focus();
-        return;
-      }
-      if (!emailEl || !emailRe.test(emailEl.value.trim())) {
-        setStatus('Please enter a valid email address.', 'err');
-        emailEl?.focus();
-        return;
-      }
-
-      // No backend wired up yet — acknowledge on the page without sending anything.
-      setStatus('Thanks — we got your request and will call you back shortly.', 'ok');
-      form.reset();
-    });
+  function setStatus(msg: string, type: '' | 'error' | 'success') {
+    if (!statusEl) return;
+    statusEl.textContent = msg;
+    statusEl.className = 'form-status' + (type ? ' ' + type : '');
   }
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    setStatus('', '');
+    const fd = new FormData(form);
+    const data = Object.fromEntries(fd.entries()) as Record<string, string>;
+
+    if (data.company_website) return; // honeypot tripped — silently drop
+    if (!data.name || !data.name.trim()) return setStatus('Please enter your name.', 'error');
+    if (!EMAIL_RE.test((data.email || '').trim()))
+      return setStatus('Please enter a valid email address.', 'error');
+  
+    const endpoint = form.getAttribute('data-endpoint');
+    if (!endpoint) {
+      return setStatus('Online form isn’t set up yet — please call us instead.', 'error');
+    }
+
+    const btn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const orig = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Submitting…';
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { Accept: 'application/json' },
+        body: fd,
+      });
+      if (!res.ok) throw new Error('bad status');
+      form.reset();
+      setStatus("🎉 Thanks! We've received your request and will call you shortly.", 'success');
+    } catch {
+      setStatus('Sorry, something went wrong. Please call us instead.', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = orig;
+    }
+  });
 </script>
