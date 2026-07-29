@@ -6,6 +6,7 @@
  * `exclude` drops one city slug (e.g. the current city).
  */
 import { CITIES } from '@config/cities';
+import { SITE } from '@config/site';
 import type { Service } from '@config/services';
 import { cityUrl, cityServiceUrl } from '../lib/urls';
 
@@ -20,6 +21,12 @@ const { service, exclude, title, sub } = Astro.props;
 const list = CITIES.filter((c) => c.slug !== exclude);
 const headTitle =
   title ?? (service ? `${service.short} by Town` : 'Towns We Serve');
+
+// EXP-003 rollout (analytics/analysis/ONPAGE-EXPERIMENTS.md): service-qualified city-hub
+// anchors ("Septic Service in Weaverville") instead of the bare city name, so each hub earns
+// exact-match anchors for "{trade} {city}" queries. Use the trade's first clause (before " and "),
+// title-cased, so compound trades don't yield long, unsearchable anchors.
+const tradeLabel = SITE.trade.split(/\s+and\s+/i)[0].replace(/\b\w/g, (m) => m.toUpperCase());
 ---
 
 <section class="section section-soft">
@@ -33,7 +40,7 @@ const headTitle =
         list.map((c) => (
           <li>
             <a href={service ? cityServiceUrl(service, c) : cityUrl(c)}>
-              {service ? `${service.short} in ${c.name}` : c.name}
+              {service ? `${service.short} in ${c.name}` : `${tradeLabel} in ${c.name}`}
               <small>{c.state ? c.state : ''}</small>
             </a>
           </li>
