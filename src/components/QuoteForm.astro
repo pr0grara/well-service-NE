@@ -20,18 +20,15 @@ const {
   sub = 'Tell us what your well is doing and we’ll call you back — usually same day.',
 } = Astro.props;
 
-const subject = `New lead — ${SITE.company} (${source})`;
+const TURNSTILE_SITEKEY = '0x4AAAAAAEGrlxt5EmAvDEE1';
 ---
 
 <div class="card quote-form" id="quote">
   <h3>{heading}</h3>
   <p class="muted">{sub}</p>
 
-  <form id="lead-form" novalidate data-endpoint={SITE.formEndpoint}>
-    {SITE.formAccessKey ? <input type="hidden" name="access_key" value={SITE.formAccessKey} /> : null}
+  <form id="lead-form" novalidate>
     <input type="hidden" name="source" value={source} />
-    <input type="hidden" name="subject" value={subject} />
-    <input type="hidden" name="from_name" value={SITE.company} />
 
     <!-- honeypot: real people leave this empty -->
     <div class="hp" aria-hidden="true">
@@ -54,6 +51,9 @@ const subject = `New lead — ${SITE.company} (${source})`;
       <label for="lf-message">What’s going on with your well?</label>
       <textarea id="lf-message" name="message" rows="4" placeholder="No water, low pressure, staining, frozen line…"></textarea>
     </div>
+
+    <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <div class="cf-turnstile" data-sitekey={TURNSTILE_SITEKEY} data-theme="light" style="margin:12px 0;"></div>
 
     <button type="submit" class="btn btn-primary btn-lg btn-block" id="lf-submit">
       Send My Request
@@ -98,26 +98,24 @@ const subject = `New lead — ${SITE.company} (${source})`;
     if (!EMAIL_RE.test((data.email || '').trim()))
       return setStatus('Please enter a valid email address.', 'error');
   
-    const endpoint = form.getAttribute('data-endpoint');
-    if (!endpoint) {
-      return setStatus('Online form isn’t set up yet — please call us instead.', 'error');
-    }
-
     const btn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
     const orig = btn.textContent;
     btn.disabled = true;
     btn.textContent = 'Submitting…';
     try {
-      const res = await fetch(endpoint, {
+      // Send as multipart so the optional photo (and the Turnstile token) ride along.
+      const res = await fetch('/api/lead', {
         method: 'POST',
         headers: { Accept: 'application/json' },
         body: fd,
       });
-      if (!res.ok) throw new Error('bad status');
+      const out = await res.json().catch(() => ({ success: res.ok }));
+      if (!res.ok || !out.success) throw new Error(out.message || 'bad status');
       form.reset();
+      if ((window as any).turnstile) (window as any).turnstile.reset();
       setStatus("🎉 Thanks! We've received your request and will call you shortly.", 'success');
-    } catch {
-      setStatus('Sorry, something went wrong. Please call us instead.', 'error');
+    } catch (err: any) {
+      setStatus(err?.message || 'Sorry, something went wrong. Please call us instead.', 'error');
     } finally {
       btn.disabled = false;
       btn.textContent = orig;
