@@ -27,11 +27,16 @@ export function localBusiness(siteUrl: string = SITE.url): Record<string, unknow
       '@type': 'City',
       name: c.state ? `${c.name}, ${c.state}` : c.name,
     })),
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: SITE.ratingValue,
-      reviewCount: SITE.reviewCount,
-    },
+    // Only emit AggregateRating when we have a real review system — never fabricate.
+    ...(SITE.ratingsAreReal && SITE.ratingValue && SITE.reviewCount
+      ? {
+          aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue: SITE.ratingValue,
+            reviewCount: SITE.reviewCount,
+          },
+        }
+      : {}),
   };
 }
 

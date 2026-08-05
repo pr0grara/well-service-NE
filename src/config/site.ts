@@ -28,6 +28,8 @@ export interface SiteConfig {
   priceRange: string; // e.g. "$$"  → schema
   ratingValue: string; // e.g. "4.9" → AggregateRating
   reviewCount: string; // e.g. "127" → AggregateRating
+  /** Gate AggregateRating output — only true when a real review system backs the numbers. */
+  ratingsAreReal: boolean;
 }
 
 export const SITE: SiteConfig = {
@@ -49,6 +51,7 @@ export const SITE: SiteConfig = {
   priceRange: '$$',
   ratingValue: '4.9',
   reviewCount: '63',
+  ratingsAreReal: false, // no real review system — do not emit AggregateRating
 };
 
 export const tel = (phone: string = SITE.phone): string => `tel:${phone}`;

@@ -40,8 +40,9 @@ const embed = (q: string) =>
             <h3>{c.name}</h3>
             <div class="map-frame">
               <iframe
+                class="lazy-map"
                 title={`Map of ${c.name}`}
-                src={embed(c.query)}
+                data-src={embed(c.query)}
                 loading="lazy"
                 referrerpolicy="no-referrer-when-downgrade"
                 allowfullscreen
@@ -94,3 +95,35 @@ const embed = (q: string) =>
     }
   }
 </style>
+
+<script>
+  // Mount the Google Maps embeds only when the service-area section scrolls near.
+  // Keeps ~440KB of Maps JS off the initial load (better LCP) while still auto-loading
+  // the map on scroll — no click required.
+  const frames = document.querySelectorAll('iframe.lazy-map[data-src]');
+  if (frames.length) {
+    const load = (el) => {
+      const f = el;
+      if (f.dataset.src) {
+        f.src = f.dataset.src;
+        delete f.dataset.src;
+      }
+    };
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver(
+        (entries, obs) => {
+          for (const e of entries) {
+            if (e.isIntersecting) {
+              load(e.target);
+              obs.unobserve(e.target);
+            }
+          }
+        },
+        { rootMargin: '300px 0px' }
+      );
+      frames.forEach((f) => io.observe(f));
+    } else {
+      frames.forEach(load);
+    }
+  }
+</script>

@@ -45,7 +45,7 @@ const schemas = [localBusiness(siteBase), ...extra].filter(Boolean);
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalClean} />
-    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    {noindex && <meta name="robots" content="noindex, follow" />}
 
     <meta name="theme-color" content="#15486f" />
     <meta property="og:site_name" content={SITE.company} />
