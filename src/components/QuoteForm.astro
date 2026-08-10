@@ -27,7 +27,7 @@ const TURNSTILE_SITEKEY = '0x4AAAAAAEGrlxt5EmAvDEE1';
   <h3>{heading}</h3>
   <p class="muted">{sub}</p>
 
-  <form id="lead-form" novalidate>
+  <form id="lead-form" action="/api/lead" method="post" novalidate>
     <input type="hidden" name="source" value={source} />
 
     <!-- honeypot: real people leave this empty -->
@@ -52,7 +52,6 @@ const TURNSTILE_SITEKEY = '0x4AAAAAAEGrlxt5EmAvDEE1';
       <textarea id="lf-message" name="message" rows="4" placeholder="No water, low pressure, staining, frozen line…"></textarea>
     </div>
 
-    <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <div class="cf-turnstile" data-sitekey={TURNSTILE_SITEKEY} data-theme="light" style="margin:12px 0;min-height:65px;"></div>
 
     <button type="submit" class="btn btn-primary btn-lg btn-block" id="lf-submit">
@@ -86,6 +85,18 @@ const TURNSTILE_SITEKEY = '0x4AAAAAAEGrlxt5EmAvDEE1';
     statusEl.textContent = msg;
     statusEl.className = 'form-status' + (type ? ' ' + type : '');
   }
+
+  let tsLoaded = false;
+  function loadTurnstile() {
+    if (tsLoaded) return;
+    tsLoaded = true;
+    const st = document.createElement('script');
+    st.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+    st.async = true;
+    st.defer = true;
+    document.head.appendChild(st);
+  }
+  form?.addEventListener('focusin', loadTurnstile, { once: true });
 
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
