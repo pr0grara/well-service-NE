@@ -36,8 +36,8 @@ export const SITE: SiteConfig = {
   company: 'Pine State Well & Pump',
   tagline: 'Well & Pump Repair and Water Systems',
   trade: 'well repair',
-  phone: '+12075550100', // PLACEHOLDER — replace with real dialable number
-  phoneDisplay: '(207) 555-0100', // PLACEHOLDER
+  phone: '+12074666171', // LIVE tracking number — Rockland ME 207 local (Twilio leadgen acct, 2026-09-21). Routes via lead-gen-twilio /incoming → whisper+voicemail → logs to calls table as "Pine State Well & Pump".
+  phoneDisplay: '(207) 466-6171',
   email: 'service@pinestatewellandpump.com', // PLACEHOLDER local-part — confirm the real inbox
   region: 'Central Maine',
   url: 'https://pinestatewellandpump.com', // real domain — keep in sync with astro.config.mjs
