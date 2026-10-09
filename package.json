@@ -1,6 +1,6 @@
 {
   "name": "well-repair-ne",
-  "description": "Lead-gen site for Pine State Well & Pump — well & pump repair in Central Maine.",
+  "description": "Lead-gen site for Pine State Well & Pump \u2014 well & pump repair in Central Maine.",
   "type": "module",
   "version": "1.0.0",
   "private": true,
@@ -11,7 +11,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "deploy": "astro build && npx wrangler deploy"
+    "deploy": "astro build && npx wrangler deploy",
+    "indexnow": "node scripts/indexnow.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",
